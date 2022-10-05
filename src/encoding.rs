@@ -945,6 +945,81 @@ pub mod url {
     }
 }
 
+pub mod datetime {
+    use chrono::FixedOffset;
+
+    use super::*;
+
+    pub fn encode<B>(tag: u32, value: &::chrono::DateTime<FixedOffset>, buf: &mut B)
+    where
+        B: BufMut,
+    {
+        encode_key(tag, WireType::LengthDelimited, buf);
+        encode_varint(value.to_rfc2822().len() as u64, buf);
+        buf.put_slice(value.to_rfc2822().as_bytes());
+    }
+
+    pub fn merge<B>(
+        wire_type: WireType,
+        value: &mut ::chrono::DateTime<FixedOffset>,
+        buf: &mut B,
+        _: DecodeContext,
+    ) -> Result<(), DecodeError>
+    where
+        B: Buf,
+    {
+        check_wire_type(WireType::LengthDelimited, wire_type)?;
+        let len = decode_varint(buf)?;
+        if len > buf.remaining() as u64 {
+            return Err(DecodeError::new("buffer underflow"));
+        }
+        let bytes = buf.copy_to_bytes(len as usize);
+        let str =
+            std::str::from_utf8(&bytes).map_err(|_| DecodeError::new("invalid utf-8 uuid"))?;
+        let mut date_time = ::chrono::DateTime::parse_from_rfc2822(str)
+            .map_err(|_| DecodeError::new("invalid date time"))?;
+        std::mem::swap(value, &mut date_time);
+        Ok(())
+    }
+
+    encode_repeated!(::chrono::DateTime<FixedOffset>);
+
+    pub fn merge_repeated<B>(
+        wire_type: WireType,
+        values: &mut Vec<::chrono::DateTime<FixedOffset>>,
+        buf: &mut B,
+        ctx: DecodeContext,
+    ) -> Result<(), DecodeError>
+    where
+        B: Buf,
+    {
+        check_wire_type(WireType::LengthDelimited, wire_type)?;
+        let mut value =
+            ::chrono::DateTime::parse_from_rfc2822("Tue, 1 Jul 2003 10:52:37 +0200").unwrap();
+        merge(wire_type, &mut value, buf, ctx)?;
+        values.push(value);
+        Ok(())
+    }
+
+    #[inline]
+    pub fn encoded_len(tag: u32, value: &::chrono::DateTime<FixedOffset>) -> usize {
+        key_len(tag)
+            + encoded_len_varint(value.to_rfc2822().len() as u64)
+            + value.to_rfc2822().len()
+    }
+
+    #[inline]
+    pub fn encoded_len_repeated(tag: u32, values: &[::chrono::DateTime<FixedOffset>]) -> usize {
+        key_len(tag) * values.len()
+            + values
+                .iter()
+                .map(|value| {
+                    encoded_len_varint(value.to_rfc2822().len() as u64) + value.to_rfc2822().len()
+                })
+                .sum::<usize>()
+    }
+}
+
 pub mod string {
     use super::*;
 

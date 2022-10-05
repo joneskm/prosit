@@ -790,6 +790,9 @@ impl<'a> CodeGenerator<'a> {
                     match RustTypes::from_i32(i).expect("unknown RustTypes enum variant") {
                         RustTypes::Uuid => return String::from("::uuid::Uuid"),
                         RustTypes::Url => return String::from("::url::Url"),
+                        RustTypes::DateTime => {
+                            return String::from("::chrono::DateTime<::chrono::FixedOffset>")
+                        }
                         RustTypes::Default => (),
                     };
                 };
@@ -851,6 +854,7 @@ impl<'a> CodeGenerator<'a> {
                     match RustTypes::from_i32(i).expect("unknown RustTypes enum variant") {
                         RustTypes::Uuid => return Cow::Borrowed("uuid"),
                         RustTypes::Url => return Cow::Borrowed("url"),
+                        RustTypes::DateTime => return Cow::Borrowed("datetime"),
                         RustTypes::Default => (),
                     };
                 };

@@ -8,6 +8,7 @@ enum RustLibraryTypes {
   RS_DEFAULT = 0;
   UUID = 1;
   URL = 2;
+  DATETIME = 3;
 }
 
 extend google.protobuf.OneofOptions {

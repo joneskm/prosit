@@ -8,6 +8,7 @@ use syn::{parse_str, Ident, Lit, LitByteStr, Meta, MetaList, MetaNameValue, Nest
 use uuid::Uuid;
 
 use crate::field::{bool_attr, set_option, tag_attr, Label};
+use chrono::{DateTime, FixedOffset};
 use url::Url;
 
 /// A scalar protobuf field.
@@ -409,6 +410,7 @@ pub enum Ty {
     // Custom types, not part of the proto standard.
     Uuid,
     Url,
+    Datetime,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -455,6 +457,7 @@ impl Ty {
 
             Meta::Path(ref name) if name.is_ident("uuid") => Ty::Uuid,
             Meta::Path(ref name) if name.is_ident("url") => Ty::Url,
+            Meta::Path(ref name) if name.is_ident("datetime") => Ty::Datetime,
 
             Meta::NameValue(MetaNameValue {
                 ref path,
@@ -508,6 +511,7 @@ impl Ty {
             "bytes" => Ty::Bytes(BytesTy::Vec),
             "uuid" => Ty::Uuid,
             "url" => Ty::Url,
+            "datetime" => Ty::Datetime,
             s if s.len() > enumeration_len && &s[..enumeration_len] == "enumeration" => {
                 let s = &s[enumeration_len..].trim();
                 match s.chars().next() {
@@ -547,6 +551,7 @@ impl Ty {
             Ty::Enumeration(..) => "enum",
             Ty::Uuid => "uuid",
             Ty::Url => "url",
+            Ty::Datetime => "datetime",
         }
     }
 
@@ -557,6 +562,7 @@ impl Ty {
             Ty::Bytes(ty) => ty.rust_type(),
             Ty::Uuid => quote!(::uuid::Uuid),
             Ty::Url => quote!(::url::Url),
+            Ty::Datetime => quote!(::chrono::DateTime<::chrono::FixedOffset>),
             _ => self.rust_ref_type(),
         }
     }
@@ -582,6 +588,7 @@ impl Ty {
             Ty::Enumeration(..) => quote!(i32),
             Ty::Uuid => quote!(&::uuid::Uuid),
             Ty::Url => quote!(&::url::Url),
+            Ty::Datetime => quote!(&::chrono::DateTime<::chrono::FixedOffset>),
         }
     }
 
@@ -644,6 +651,7 @@ pub enum DefaultValue {
 
     Uuid(Uuid),
     Url(Url),
+    DateTime(DateTime<FixedOffset>),
 }
 
 impl DefaultValue {
@@ -806,6 +814,9 @@ impl DefaultValue {
 
             Ty::Uuid => DefaultValue::Uuid(Uuid::nil()),
             Ty::Url => DefaultValue::Url(Url::parse("https://www.rust-lang.org/").unwrap()),
+            Ty::Datetime => DefaultValue::DateTime(
+                DateTime::parse_from_rfc2822("Tue, 1 Jul 2003 10:52:37 +0200").unwrap(),
+            ),
         }
     }
 
@@ -855,6 +866,11 @@ impl ToTokens for DefaultValue {
             DefaultValue::Url(_) => {
                 quote!(::url::Url::parse("https://www.rust-lang.org/").unwrap()).to_tokens(tokens)
             }
+            DefaultValue::DateTime(_) => quote!(::chrono::DateTime::parse_from_rfc2822(
+                "Tue, 1 Jul 2003 10:52:37 +0200"
+            )
+            .unwrap())
+            .to_tokens(tokens),
         }
     }
 }

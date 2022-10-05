@@ -23,3 +23,4 @@ quote = "1"
 syn = { version = "1", features = [ "extra-traits" ] }
 uuid = "0.8"
 url = "2"
+chrono = "0.4"
