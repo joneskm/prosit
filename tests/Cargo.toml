@@ -30,6 +30,7 @@ prost-build = { path = "../prost-build" }
 tempfile = "3"
 remove_dir_all = "0.6"
 url = "2"
+chrono = "0.4"
 
 [build-dependencies]
 cfg-if = "1"

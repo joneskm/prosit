@@ -88,6 +88,10 @@ fn main() {
         .unwrap();
 
     config
+        .compile_protos(&[src.join("datetime.proto")], includes)
+        .unwrap();
+
+    config
         .compile_protos(&[src.join("groups.proto")], includes)
         .unwrap();
 

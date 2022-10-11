@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package datetime;
+
+import "rust.proto";
+
+message Request {
+  string datetime = 1 [(rust.codegen).type = DATETIME];
+}
+
+message RequestNoOpts {
+  string datetime = 1;
+}

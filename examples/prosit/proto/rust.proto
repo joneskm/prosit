@@ -10,14 +10,15 @@ enum RustLibraryTypes {
   RS_DEFAULT = 0;
   UUID = 1;
   URL = 2;
+  DATETIME = 3;
 }
 
 extend google.protobuf.OneofOptions {
-  bool required = 796112;
+  optional bool required = 796112;
 }
 
 extend google.protobuf.FieldOptions {
-  RustFieldRules codegen = 796111;
+  optional RustFieldRules codegen = 796111;
 }
 
 message RustFieldRules {

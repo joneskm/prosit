@@ -11,12 +11,18 @@ edition = "2018"
 prost = "0.8"
 uuid = "0.8"
 url = "2"
+chrono = "0.4"
 
 [build-dependencies]
-prost-build = { git = 'https://github.com/kaiserkarel/prosit' }
+#prost-build = { git = 'https://github.com/kaiserkarel/prosit' }
+prost-build = { path = '/home/kevin/projects/sandbox/_blockchain/tendermint/prosit/prost-build' }
 
 [patch.crates-io]
-prost = { git = 'https://github.com/kaiserkarel/prosit' }
-prost-derive = { git = 'https://github.com/kaiserkarel/prosit' }
-prost-types = { git = 'https://github.com/kaiserkarel/prosit' }
-prost-build = { git = 'https://github.com/kaiserkarel/prosit' }
+# prost = { git = 'https://github.com/kaiserkarel/prosit' }
+# prost-derive = { git = 'https://github.com/kaiserkarel/prosit' }
+# prost-types = { git = 'https://github.com/kaiserkarel/prosit' }
+# prost-build = { git = 'https://github.com/kaiserkarel/prosit' }
+prost = { path = '/home/kevin/projects/sandbox/_blockchain/tendermint/prosit' }
+prost-derive = { path = '/home/kevin/projects/sandbox/_blockchain/tendermint/prosit/prost-derive' }
+prost-types = { path = '/home/kevin/projects/sandbox/_blockchain/tendermint/prosit/prost-types' }
+prost-build = { path = '/home/kevin/projects/sandbox/_blockchain/tendermint/prosit/prost-build' }

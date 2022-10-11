@@ -13,6 +13,9 @@ message Data {
 
   // generates the url type.
   string url = 3 [(rust.codegen).type = URL];
+
+  // generates the datetime type
+  string datetime = 4 [(rust.codegen).type = DATETIME];
 }
 
 message Foo {
