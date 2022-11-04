@@ -785,6 +785,15 @@ impl<'a> CodeGenerator<'a> {
 
     fn resolve_type(&self, field: &FieldDescriptorProto, fq_message_name: &str) -> String {
         if let Some(opts) = &field.options {
+            if let Some(type_) = &opts.customtype {
+                match type_.as_str() {
+                    "github.com/cosmos/cosmos-sdk/types.Int" | "Int" => {
+                        return String::from("::cosmwasm_std::Uint256")
+                    }
+                    _ => panic!("Unsupported custom type: {}", type_), // TODO: should return an error
+                }
+            }
+
             if let Some(opts) = &opts.codegen {
                 if let Some(i) = opts.r#type {
                     match RustTypes::from_i32(i).expect("unknown RustTypes enum variant") {
@@ -849,6 +858,15 @@ impl<'a> CodeGenerator<'a> {
 
     fn field_type_tag(&self, field: &FieldDescriptorProto) -> Cow<'static, str> {
         if let Some(opts) = &field.options {
+            if let Some(type_) = &opts.customtype {
+                match type_.as_str() {
+                    "github.com/cosmos/cosmos-sdk/types.Int" | "Int" => {
+                        return Cow::Borrowed("uint256")
+                    }
+                    _ => panic!("Unsupported custom type: {}", type_), // TODO: should return an error
+                }
+            }
+
             if let Some(opts) = &opts.codegen {
                 if let Some(i) = opts.r#type {
                     match RustTypes::from_i32(i).expect("unknown RustTypes enum variant") {

@@ -905,8 +905,7 @@ pub mod url {
             return Err(DecodeError::new("buffer underflow"));
         }
         let bytes = buf.copy_to_bytes(len as usize);
-        let str =
-            std::str::from_utf8(&bytes).map_err(|_| DecodeError::new("invalid utf-8 uuid"))?;
+        let str = std::str::from_utf8(&bytes).map_err(|_| DecodeError::new("invalid utf-8 url"))?;
         let mut url = ::url::Url::parse(str).map_err(|_| DecodeError::new("invalid url"))?;
         std::mem::swap(value, &mut url);
         Ok(())
@@ -975,7 +974,7 @@ pub mod datetime {
         }
         let bytes = buf.copy_to_bytes(len as usize);
         let str =
-            std::str::from_utf8(&bytes).map_err(|_| DecodeError::new("invalid utf-8 uuid"))?;
+            std::str::from_utf8(&bytes).map_err(|_| DecodeError::new("invalid utf-8 date time"))?;
         let mut date_time = ::chrono::DateTime::parse_from_rfc2822(str)
             .map_err(|_| DecodeError::new("invalid date time"))?;
         std::mem::swap(value, &mut date_time);
@@ -1015,6 +1014,78 @@ pub mod datetime {
                 .iter()
                 .map(|value| {
                     encoded_len_varint(value.to_rfc2822().len() as u64) + value.to_rfc2822().len()
+                })
+                .sum::<usize>()
+    }
+}
+
+pub mod uint256 {
+    use core::str::FromStr;
+
+    use super::*;
+
+    pub fn encode<B>(tag: u32, value: &::cosmwasm_std::Uint256, buf: &mut B)
+    where
+        B: BufMut,
+    {
+        encode_key(tag, WireType::LengthDelimited, buf);
+        encode_varint(value.to_string().len() as u64, buf);
+        buf.put_slice(value.to_string().as_bytes());
+    }
+
+    pub fn merge<B>(
+        wire_type: WireType,
+        value: &mut ::cosmwasm_std::Uint256,
+        buf: &mut B,
+        _: DecodeContext,
+    ) -> Result<(), DecodeError>
+    where
+        B: Buf,
+    {
+        check_wire_type(WireType::LengthDelimited, wire_type)?;
+        let len = decode_varint(buf)?;
+        if len > buf.remaining() as u64 {
+            return Err(DecodeError::new("buffer underflow"));
+        }
+        let bytes = buf.copy_to_bytes(len as usize);
+        let str =
+            std::str::from_utf8(&bytes).map_err(|_| DecodeError::new("invalid utf-8 uint256"))?;
+        let mut uint256 = ::cosmwasm_std::Uint256::from_str(str)
+            .map_err(|_| DecodeError::new("invalid uint256"))?;
+        std::mem::swap(value, &mut uint256);
+        Ok(())
+    }
+
+    encode_repeated!(::cosmwasm_std::Uint256);
+
+    pub fn merge_repeated<B>(
+        wire_type: WireType,
+        values: &mut Vec<::cosmwasm_std::Uint256>,
+        buf: &mut B,
+        ctx: DecodeContext,
+    ) -> Result<(), DecodeError>
+    where
+        B: Buf,
+    {
+        check_wire_type(WireType::LengthDelimited, wire_type)?;
+        let mut value = ::cosmwasm_std::Uint256::zero();
+        merge(wire_type, &mut value, buf, ctx)?;
+        values.push(value);
+        Ok(())
+    }
+
+    #[inline]
+    pub fn encoded_len(tag: u32, value: &::cosmwasm_std::Uint256) -> usize {
+        key_len(tag) + encoded_len_varint(value.to_string().len() as u64) + value.to_string().len()
+    }
+
+    #[inline]
+    pub fn encoded_len_repeated(tag: u32, values: &[::cosmwasm_std::Uint256]) -> usize {
+        key_len(tag) * values.len()
+            + values
+                .iter()
+                .map(|value| {
+                    encoded_len_varint(value.to_string().len() as u64) + value.to_string().len()
                 })
                 .sum::<usize>()
     }

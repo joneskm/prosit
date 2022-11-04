@@ -595,7 +595,10 @@ pub struct FieldOptions {
     pub uninterpreted_option: ::prost::alloc::vec::Vec<UninterpretedOption>,
 
     #[prost(message, optional, tag="796111")]
-    pub codegen: ::core::option::Option<RustCodeGen>
+    pub codegen: ::core::option::Option<RustCodeGen>,
+    
+    #[prost(string, optional, tag = "65003")]
+    pub customtype: ::core::option::Option<::prost::alloc::string::String>,
 }
 
 /// See root level rust.proto

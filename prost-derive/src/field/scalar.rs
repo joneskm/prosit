@@ -9,6 +9,7 @@ use uuid::Uuid;
 
 use crate::field::{bool_attr, set_option, tag_attr, Label};
 use chrono::{DateTime, FixedOffset};
+use cosmwasm_std::Uint256;
 use url::Url;
 
 /// A scalar protobuf field.
@@ -411,6 +412,7 @@ pub enum Ty {
     Uuid,
     Url,
     Datetime,
+    Uint256,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -457,6 +459,7 @@ impl Ty {
 
             Meta::Path(ref name) if name.is_ident("uuid") => Ty::Uuid,
             Meta::Path(ref name) if name.is_ident("url") => Ty::Url,
+            Meta::Path(ref name) if name.is_ident("uint256") => Ty::Uint256,
             Meta::Path(ref name) if name.is_ident("datetime") => Ty::Datetime,
 
             Meta::NameValue(MetaNameValue {
@@ -512,6 +515,7 @@ impl Ty {
             "uuid" => Ty::Uuid,
             "url" => Ty::Url,
             "datetime" => Ty::Datetime,
+            "uint256" => Ty::Uint256,
             s if s.len() > enumeration_len && &s[..enumeration_len] == "enumeration" => {
                 let s = &s[enumeration_len..].trim();
                 match s.chars().next() {
@@ -552,6 +556,7 @@ impl Ty {
             Ty::Uuid => "uuid",
             Ty::Url => "url",
             Ty::Datetime => "datetime",
+            Ty::Uint256 => "uint256",
         }
     }
 
@@ -563,6 +568,7 @@ impl Ty {
             Ty::Uuid => quote!(::uuid::Uuid),
             Ty::Url => quote!(::url::Url),
             Ty::Datetime => quote!(::chrono::DateTime<::chrono::FixedOffset>),
+            Ty::Uint256 => quote!(::cosmwasm_std::Uint256),
             _ => self.rust_ref_type(),
         }
     }
@@ -589,6 +595,7 @@ impl Ty {
             Ty::Uuid => quote!(&::uuid::Uuid),
             Ty::Url => quote!(&::url::Url),
             Ty::Datetime => quote!(&::chrono::DateTime<::chrono::FixedOffset>),
+            Ty::Uint256 => quote!(&::cosmwasm_std::Uint256),
         }
     }
 
@@ -652,6 +659,7 @@ pub enum DefaultValue {
     Uuid(Uuid),
     Url(Url),
     DateTime(DateTime<FixedOffset>),
+    Uint256(Uint256),
 }
 
 impl DefaultValue {
@@ -817,6 +825,7 @@ impl DefaultValue {
             Ty::Datetime => DefaultValue::DateTime(
                 DateTime::parse_from_rfc2822("Tue, 1 Jul 2003 10:52:37 +0200").unwrap(),
             ),
+            Ty::Uint256 => DefaultValue::Uint256(::cosmwasm_std::Uint256::zero()),
         }
     }
 
@@ -871,6 +880,7 @@ impl ToTokens for DefaultValue {
             )
             .unwrap())
             .to_tokens(tokens),
+            DefaultValue::Uint256(_) => quote!(::cosmwasm_std::Uint256::zero()).to_tokens(tokens),
         }
     }
 }

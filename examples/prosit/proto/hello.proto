@@ -3,6 +3,7 @@ syntax = "proto3";
 package hello;
 
 import "rust.proto";
+import "gogo.proto";
 
 message Data {
   // generates the Uuid type instead of the string type
@@ -16,6 +17,9 @@ message Data {
 
   // generates the datetime type
   string datetime = 4 [(rust.codegen).type = DATETIME];
+
+  // generates the uint256 type
+  string uint256 = 5 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int"];
 }
 
 message Foo {

@@ -92,6 +92,10 @@ fn main() {
         .unwrap();
 
     config
+        .compile_protos(&[src.join("uint256.proto")], includes)
+        .unwrap();
+
+    config
         .compile_protos(&[src.join("groups.proto")], includes)
         .unwrap();
 

@@ -8,21 +8,11 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-prost = "0.8"
+prost = { path = '../..' }
 uuid = "0.8"
 url = "2"
 chrono = "0.4"
+cosmwasm-std = "1.1.5"
 
 [build-dependencies]
-#prost-build = { git = 'https://github.com/kaiserkarel/prosit' }
-prost-build = { path = '/home/kevin/projects/sandbox/_blockchain/tendermint/prosit/prost-build' }
-
-[patch.crates-io]
-# prost = { git = 'https://github.com/kaiserkarel/prosit' }
-# prost-derive = { git = 'https://github.com/kaiserkarel/prosit' }
-# prost-types = { git = 'https://github.com/kaiserkarel/prosit' }
-# prost-build = { git = 'https://github.com/kaiserkarel/prosit' }
-prost = { path = '/home/kevin/projects/sandbox/_blockchain/tendermint/prosit' }
-prost-derive = { path = '/home/kevin/projects/sandbox/_blockchain/tendermint/prosit/prost-derive' }
-prost-types = { path = '/home/kevin/projects/sandbox/_blockchain/tendermint/prosit/prost-types' }
-prost-build = { path = '/home/kevin/projects/sandbox/_blockchain/tendermint/prosit/prost-build' }
+prost-build = { path = '../../prost-build' }

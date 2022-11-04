@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package uint256;
+
+import "gogo.proto";
+
+message Request {
+  string uint256 = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int"];
+}
+
+message RequestNoOpts {
+  string uint256 = 1;
+}

@@ -53,6 +53,9 @@ mod url;
 #[cfg(test)]
 mod datetime;
 
+#[cfg(test)]
+mod uint256;
+
 pub mod foo {
     pub mod bar_baz {
         include!(concat!(env!("OUT_DIR"), "/foo.bar_baz.rs"));

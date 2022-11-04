@@ -2,8 +2,8 @@
 name = "prost"
 version = "0.8.0"
 authors = [
-    "Dan Burkert <dan@danburkert.com>",
-    "Tokio Contributors <team@tokio.rs>",
+  "Dan Burkert <dan@danburkert.com>",
+  "Tokio Contributors <team@tokio.rs>",
 ]
 license = "Apache-2.0"
 repository = "https://github.com/tokio-rs/prost"
@@ -46,6 +46,7 @@ prost-derive = { path = "prost-derive", optional = true }
 uuid = "0.8"
 url = "2"
 chrono = "0.4"
+cosmwasm-std = "1.1.5"
 
 [dev-dependencies]
 criterion = "0.3"
