@@ -1091,6 +1091,80 @@ pub mod uint256 {
     }
 }
 
+pub mod dec256 {
+
+    use super::*;
+
+    pub fn encode<B>(tag: u32, value: &::math::Decimal256, buf: &mut B)
+    where
+        B: BufMut,
+    {
+        encode_key(tag, WireType::LengthDelimited, buf);
+        encode_varint(value.to_cosmos_proto_string().len() as u64, buf);
+        buf.put_slice(value.to_cosmos_proto_string().as_bytes());
+    }
+
+    pub fn merge<B>(
+        wire_type: WireType,
+        value: &mut ::math::Decimal256,
+        buf: &mut B,
+        _: DecodeContext,
+    ) -> Result<(), DecodeError>
+    where
+        B: Buf,
+    {
+        check_wire_type(WireType::LengthDelimited, wire_type)?;
+        let len = decode_varint(buf)?;
+        if len > buf.remaining() as u64 {
+            return Err(DecodeError::new("buffer underflow"));
+        }
+        let bytes = buf.copy_to_bytes(len as usize);
+        let str =
+            std::str::from_utf8(&bytes).map_err(|_| DecodeError::new("invalid utf-8 dec256"))?;
+        let mut dec256 = ::math::Decimal256::from_cosmos_proto_string(str)
+            .map_err(|_| DecodeError::new("invalid dec256"))?;
+        std::mem::swap(value, &mut dec256);
+        Ok(())
+    }
+
+    encode_repeated!(::math::Decimal256);
+
+    pub fn merge_repeated<B>(
+        wire_type: WireType,
+        values: &mut Vec<::math::Decimal256>,
+        buf: &mut B,
+        ctx: DecodeContext,
+    ) -> Result<(), DecodeError>
+    where
+        B: Buf,
+    {
+        check_wire_type(WireType::LengthDelimited, wire_type)?;
+        let mut value = ::math::Decimal256::zero();
+        merge(wire_type, &mut value, buf, ctx)?;
+        values.push(value);
+        Ok(())
+    }
+
+    #[inline]
+    pub fn encoded_len(tag: u32, value: &::math::Decimal256) -> usize {
+        key_len(tag)
+            + encoded_len_varint(value.to_cosmos_proto_string().len() as u64)
+            + value.to_cosmos_proto_string().len()
+    }
+
+    #[inline]
+    pub fn encoded_len_repeated(tag: u32, values: &[::math::Decimal256]) -> usize {
+        key_len(tag) * values.len()
+            + values
+                .iter()
+                .map(|value| {
+                    encoded_len_varint(value.to_cosmos_proto_string().len() as u64)
+                        + value.to_cosmos_proto_string().len()
+                })
+                .sum::<usize>()
+    }
+}
+
 pub mod string {
     use super::*;
 

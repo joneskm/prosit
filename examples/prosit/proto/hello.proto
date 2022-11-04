@@ -20,6 +20,9 @@ message Data {
 
   // generates the uint256 type
   string uint256 = 5 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int"];
+
+  // generates the decimal256 type
+  string dec256 = 6 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
 }
 
 message Foo {

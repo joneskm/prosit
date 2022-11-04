@@ -10,6 +10,7 @@ use uuid::Uuid;
 use crate::field::{bool_attr, set_option, tag_attr, Label};
 use chrono::{DateTime, FixedOffset};
 use cosmwasm_std::Uint256;
+use math::Decimal256;
 use url::Url;
 
 /// A scalar protobuf field.
@@ -413,6 +414,7 @@ pub enum Ty {
     Url,
     Datetime,
     Uint256,
+    Decimal256,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -460,6 +462,7 @@ impl Ty {
             Meta::Path(ref name) if name.is_ident("uuid") => Ty::Uuid,
             Meta::Path(ref name) if name.is_ident("url") => Ty::Url,
             Meta::Path(ref name) if name.is_ident("uint256") => Ty::Uint256,
+            Meta::Path(ref name) if name.is_ident("dec256") => Ty::Decimal256,
             Meta::Path(ref name) if name.is_ident("datetime") => Ty::Datetime,
 
             Meta::NameValue(MetaNameValue {
@@ -516,6 +519,7 @@ impl Ty {
             "url" => Ty::Url,
             "datetime" => Ty::Datetime,
             "uint256" => Ty::Uint256,
+            "dec256" => Ty::Decimal256,
             s if s.len() > enumeration_len && &s[..enumeration_len] == "enumeration" => {
                 let s = &s[enumeration_len..].trim();
                 match s.chars().next() {
@@ -557,6 +561,7 @@ impl Ty {
             Ty::Url => "url",
             Ty::Datetime => "datetime",
             Ty::Uint256 => "uint256",
+            Ty::Decimal256 => "dec256",
         }
     }
 
@@ -569,6 +574,7 @@ impl Ty {
             Ty::Url => quote!(::url::Url),
             Ty::Datetime => quote!(::chrono::DateTime<::chrono::FixedOffset>),
             Ty::Uint256 => quote!(::cosmwasm_std::Uint256),
+            Ty::Decimal256 => quote!(::math::Decimal256),
             _ => self.rust_ref_type(),
         }
     }
@@ -596,6 +602,7 @@ impl Ty {
             Ty::Url => quote!(&::url::Url),
             Ty::Datetime => quote!(&::chrono::DateTime<::chrono::FixedOffset>),
             Ty::Uint256 => quote!(&::cosmwasm_std::Uint256),
+            Ty::Decimal256 => quote!(&::math::Decimal256),
         }
     }
 
@@ -660,6 +667,7 @@ pub enum DefaultValue {
     Url(Url),
     DateTime(DateTime<FixedOffset>),
     Uint256(Uint256),
+    Decimal256(Decimal256),
 }
 
 impl DefaultValue {
@@ -826,6 +834,7 @@ impl DefaultValue {
                 DateTime::parse_from_rfc2822("Tue, 1 Jul 2003 10:52:37 +0200").unwrap(),
             ),
             Ty::Uint256 => DefaultValue::Uint256(::cosmwasm_std::Uint256::zero()),
+            Ty::Decimal256 => DefaultValue::Decimal256(::math::Decimal256::zero()),
         }
     }
 
@@ -881,6 +890,7 @@ impl ToTokens for DefaultValue {
             .unwrap())
             .to_tokens(tokens),
             DefaultValue::Uint256(_) => quote!(::cosmwasm_std::Uint256::zero()).to_tokens(tokens),
+            DefaultValue::Decimal256(_) => quote!(::math::Decimal256::zero()).to_tokens(tokens),
         }
     }
 }
