@@ -11,7 +11,7 @@ fn test_dec256_serializes_equivalent_to_string() {
     };
 
     let with_opts = Request {
-        dec256: math::Decimal256::from_str("12343353535233988.88").unwrap(),
+        dec256: proto_types::Decimal256::from_str("12343353535233988.88").unwrap(),
     };
 
     check_serialize_equivalent(&no_opts, &with_opts)

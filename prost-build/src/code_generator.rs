@@ -788,7 +788,7 @@ impl<'a> CodeGenerator<'a> {
             if let Some(type_) = &opts.customtype {
                 match type_.as_str() {
                     "github.com/cosmos/cosmos-sdk/types.Dec" | "Dec" => {
-                        return String::from("::math::Decimal256")
+                        return String::from("::proto_types::Decimal256")
                     }
                     "github.com/cosmos/cosmos-sdk/types.Int" | "Int" => {
                         return String::from("::cosmwasm_std::Uint256")

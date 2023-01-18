@@ -10,7 +10,7 @@ use uuid::Uuid;
 use crate::field::{bool_attr, set_option, tag_attr, Label};
 use chrono::{DateTime, FixedOffset};
 use cosmwasm_std::Uint256;
-use math::Decimal256;
+use proto_types::Decimal256;
 use url::Url;
 
 /// A scalar protobuf field.
@@ -574,7 +574,7 @@ impl Ty {
             Ty::Url => quote!(::url::Url),
             Ty::Datetime => quote!(::chrono::DateTime<::chrono::FixedOffset>),
             Ty::Uint256 => quote!(::cosmwasm_std::Uint256),
-            Ty::Decimal256 => quote!(::math::Decimal256),
+            Ty::Decimal256 => quote!(::proto_types::Decimal256),
             _ => self.rust_ref_type(),
         }
     }
@@ -602,7 +602,7 @@ impl Ty {
             Ty::Url => quote!(&::url::Url),
             Ty::Datetime => quote!(&::chrono::DateTime<::chrono::FixedOffset>),
             Ty::Uint256 => quote!(&::cosmwasm_std::Uint256),
-            Ty::Decimal256 => quote!(&::math::Decimal256),
+            Ty::Decimal256 => quote!(&::proto_types::Decimal256),
         }
     }
 
@@ -834,7 +834,7 @@ impl DefaultValue {
                 DateTime::parse_from_rfc2822("Tue, 1 Jul 2003 10:52:37 +0200").unwrap(),
             ),
             Ty::Uint256 => DefaultValue::Uint256(::cosmwasm_std::Uint256::zero()),
-            Ty::Decimal256 => DefaultValue::Decimal256(::math::Decimal256::zero()),
+            Ty::Decimal256 => DefaultValue::Decimal256(::proto_types::Decimal256::zero()),
         }
     }
 
@@ -890,7 +890,9 @@ impl ToTokens for DefaultValue {
             .unwrap())
             .to_tokens(tokens),
             DefaultValue::Uint256(_) => quote!(::cosmwasm_std::Uint256::zero()).to_tokens(tokens),
-            DefaultValue::Decimal256(_) => quote!(::math::Decimal256::zero()).to_tokens(tokens),
+            DefaultValue::Decimal256(_) => {
+                quote!(::proto_types::Decimal256::zero()).to_tokens(tokens)
+            }
         }
     }
 }

@@ -13,7 +13,7 @@ uuid = "0.8"
 url = "2"
 chrono = "0.4"
 cosmwasm-std = "1.1.5"
-math = { git = "https://github.com/joneskm/abci-demo-app/" }
+proto-types = { git = "https://github.com/joneskm/gaia-rs/" }
 
 
 [build-dependencies]
