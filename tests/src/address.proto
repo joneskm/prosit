@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package url;
+
+import "rust.proto";
+
+message Request {
+  string address = 1 [(rust.codegen).type = ACCADDRESS];
+}
+
+message RequestNoOpts {
+  string address = 1;
+}

@@ -805,6 +805,7 @@ impl<'a> CodeGenerator<'a> {
                         RustTypes::DateTime => {
                             return String::from("::chrono::DateTime<::chrono::FixedOffset>")
                         }
+                        RustTypes::AccAddress => return String::from("::proto_types::AccAddress"),
                         RustTypes::Default => (),
                     };
                 };
@@ -879,6 +880,7 @@ impl<'a> CodeGenerator<'a> {
                         RustTypes::Uuid => return Cow::Borrowed("uuid"),
                         RustTypes::Url => return Cow::Borrowed("url"),
                         RustTypes::DateTime => return Cow::Borrowed("datetime"),
+                        RustTypes::AccAddress => return Cow::Borrowed("address"),
                         RustTypes::Default => (),
                     };
                 };

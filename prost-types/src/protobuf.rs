@@ -620,6 +620,7 @@ pub enum RustTypes {
     Uuid = 1,
     Url = 2,
     DateTime = 3,
+    AccAddress = 4,
 }
 
 

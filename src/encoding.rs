@@ -1165,6 +1165,79 @@ pub mod dec256 {
     }
 }
 
+pub mod address {
+
+    use super::*;
+
+    pub fn encode<B>(tag: u32, value: &::proto_types::AccAddress, buf: &mut B)
+    where
+        B: BufMut,
+    {
+        encode_key(tag, WireType::LengthDelimited, buf);
+        encode_varint(value.to_string().len() as u64, buf);
+        buf.put_slice(value.to_string().as_bytes());
+    }
+
+    pub fn merge<B>(
+        wire_type: WireType,
+        value: &mut ::proto_types::AccAddress,
+        buf: &mut B,
+        _: DecodeContext,
+    ) -> Result<(), DecodeError>
+    where
+        B: Buf,
+    {
+        check_wire_type(WireType::LengthDelimited, wire_type)?;
+        let len = decode_varint(buf)?;
+        if len > buf.remaining() as u64 {
+            return Err(DecodeError::new("buffer underflow"));
+        }
+        let bytes = buf.copy_to_bytes(len as usize);
+        let str =
+            std::str::from_utf8(&bytes).map_err(|_| DecodeError::new("invalid utf-8 address"))?;
+        let mut address = ::proto_types::AccAddress::from_bech32(str)
+            .map_err(|_| DecodeError::new("invalid account address"))?;
+        std::mem::swap(value, &mut address);
+        Ok(())
+    }
+
+    encode_repeated!(::proto_types::AccAddress);
+
+    pub fn merge_repeated<B>(
+        wire_type: WireType,
+        values: &mut Vec<::proto_types::AccAddress>,
+        buf: &mut B,
+        ctx: DecodeContext,
+    ) -> Result<(), DecodeError>
+    where
+        B: Buf,
+    {
+        check_wire_type(WireType::LengthDelimited, wire_type)?;
+        let mut value =
+            ::proto_types::AccAddress::from_bech32("cosmos1syavy2npfyt9tcncdtsdzf7kny9lh777pahuux")
+                .expect("this is a valid address");
+        merge(wire_type, &mut value, buf, ctx)?;
+        values.push(value);
+        Ok(())
+    }
+
+    #[inline]
+    pub fn encoded_len(tag: u32, value: &::proto_types::AccAddress) -> usize {
+        key_len(tag) + encoded_len_varint(value.to_string().len() as u64) + value.to_string().len()
+    }
+
+    #[inline]
+    pub fn encoded_len_repeated(tag: u32, values: &[::proto_types::AccAddress]) -> usize {
+        key_len(tag) * values.len()
+            + values
+                .iter()
+                .map(|value| {
+                    encoded_len_varint(value.to_string().len() as u64) + value.to_string().len()
+                })
+                .sum::<usize>()
+    }
+}
+
 pub mod string {
     use super::*;
 

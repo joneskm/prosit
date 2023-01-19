@@ -23,6 +23,9 @@ message Data {
 
   // generates the decimal256 type
   string dec256 = 6 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
+
+  // generates the AccAddress type instead of the string type
+  string address = 7 [(rust.codegen).type = ACCADDRESS];
 }
 
 message Foo {

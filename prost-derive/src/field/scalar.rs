@@ -10,7 +10,7 @@ use uuid::Uuid;
 use crate::field::{bool_attr, set_option, tag_attr, Label};
 use chrono::{DateTime, FixedOffset};
 use cosmwasm_std::Uint256;
-use proto_types::Decimal256;
+use proto_types::{AccAddress, Decimal256};
 use url::Url;
 
 /// A scalar protobuf field.
@@ -415,6 +415,7 @@ pub enum Ty {
     Datetime,
     Uint256,
     Decimal256,
+    AccAddress,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -464,6 +465,7 @@ impl Ty {
             Meta::Path(ref name) if name.is_ident("uint256") => Ty::Uint256,
             Meta::Path(ref name) if name.is_ident("dec256") => Ty::Decimal256,
             Meta::Path(ref name) if name.is_ident("datetime") => Ty::Datetime,
+            Meta::Path(ref name) if name.is_ident("address") => Ty::AccAddress,
 
             Meta::NameValue(MetaNameValue {
                 ref path,
@@ -520,6 +522,7 @@ impl Ty {
             "datetime" => Ty::Datetime,
             "uint256" => Ty::Uint256,
             "dec256" => Ty::Decimal256,
+            "address" => Ty::AccAddress,
             s if s.len() > enumeration_len && &s[..enumeration_len] == "enumeration" => {
                 let s = &s[enumeration_len..].trim();
                 match s.chars().next() {
@@ -562,6 +565,7 @@ impl Ty {
             Ty::Datetime => "datetime",
             Ty::Uint256 => "uint256",
             Ty::Decimal256 => "dec256",
+            Ty::AccAddress => "address",
         }
     }
 
@@ -575,6 +579,7 @@ impl Ty {
             Ty::Datetime => quote!(::chrono::DateTime<::chrono::FixedOffset>),
             Ty::Uint256 => quote!(::cosmwasm_std::Uint256),
             Ty::Decimal256 => quote!(::proto_types::Decimal256),
+            Ty::AccAddress => quote!(::proto_types::AccAddress),
             _ => self.rust_ref_type(),
         }
     }
@@ -603,6 +608,7 @@ impl Ty {
             Ty::Datetime => quote!(&::chrono::DateTime<::chrono::FixedOffset>),
             Ty::Uint256 => quote!(&::cosmwasm_std::Uint256),
             Ty::Decimal256 => quote!(&::proto_types::Decimal256),
+            Ty::AccAddress => quote!(&::proto_types::AccAddress),
         }
     }
 
@@ -668,6 +674,7 @@ pub enum DefaultValue {
     DateTime(DateTime<FixedOffset>),
     Uint256(Uint256),
     Decimal256(Decimal256),
+    AccAddress(AccAddress),
 }
 
 impl DefaultValue {
@@ -835,6 +842,12 @@ impl DefaultValue {
             ),
             Ty::Uint256 => DefaultValue::Uint256(::cosmwasm_std::Uint256::zero()),
             Ty::Decimal256 => DefaultValue::Decimal256(::proto_types::Decimal256::zero()),
+            Ty::AccAddress => DefaultValue::AccAddress(
+                ::proto_types::AccAddress::from_bech32(
+                    "cosmos1syavy2npfyt9tcncdtsdzf7kny9lh777pahuux".into(),
+                )
+                .expect("this is a valid address"),
+            ),
         }
     }
 
@@ -893,6 +906,11 @@ impl ToTokens for DefaultValue {
             DefaultValue::Decimal256(_) => {
                 quote!(::proto_types::Decimal256::zero()).to_tokens(tokens)
             }
+            DefaultValue::AccAddress(_) => quote!(::proto_types::AccAddress::from_bech32(
+                "cosmos1syavy2npfyt9tcncdtsdzf7kny9lh777pahuux".into(),
+            )
+            .expect("this is a valid address"))
+            .to_tokens(tokens),
         }
     }
 }
