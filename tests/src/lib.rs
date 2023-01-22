@@ -59,6 +59,12 @@ mod uint256;
 #[cfg(test)]
 mod dec256;
 
+#[cfg(test)]
+mod address;
+
+#[cfg(test)]
+mod denom;
+
 pub mod foo {
     pub mod bar_baz {
         include!(concat!(env!("OUT_DIR"), "/foo.bar_baz.rs"));

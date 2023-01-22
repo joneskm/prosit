@@ -26,6 +26,9 @@ message Data {
 
   // generates the AccAddress type instead of the string type
   string address = 7 [(rust.codegen).type = ACCADDRESS];
+
+  // generates the Denom type instead of the string type
+  string denom = 8 [(rust.codegen).type = DENOM];
 }
 
 message Foo {

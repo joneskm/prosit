@@ -621,6 +621,7 @@ pub enum RustTypes {
     Url = 2,
     DateTime = 3,
     AccAddress = 4,
+    Denom = 5,
 }
 
 

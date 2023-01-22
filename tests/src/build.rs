@@ -100,6 +100,14 @@ fn main() {
         .unwrap();
 
     config
+        .compile_protos(&[src.join("address.proto")], includes)
+        .unwrap();
+
+    config
+        .compile_protos(&[src.join("denom.proto")], includes)
+        .unwrap();
+
+    config
         .compile_protos(&[src.join("groups.proto")], includes)
         .unwrap();
 

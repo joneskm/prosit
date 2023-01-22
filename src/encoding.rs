@@ -1238,6 +1238,87 @@ pub mod address {
     }
 }
 
+pub mod denom {
+
+    use proto_types::Denom;
+
+    use super::*;
+
+    pub fn encode<B>(tag: u32, value: &::proto_types::Denom, buf: &mut B)
+    where
+        B: BufMut,
+    {
+        encode_key(tag, WireType::LengthDelimited, buf);
+        encode_varint(value.to_string().len() as u64, buf);
+        buf.put_slice(value.to_string().as_bytes());
+    }
+
+    pub fn merge<B>(
+        wire_type: WireType,
+        value: &mut ::proto_types::Denom,
+        buf: &mut B,
+        _: DecodeContext,
+    ) -> Result<(), DecodeError>
+    where
+        B: Buf,
+    {
+        check_wire_type(WireType::LengthDelimited, wire_type)?;
+        let len = decode_varint(buf)?;
+        if len > buf.remaining() as u64 {
+            return Err(DecodeError::new("buffer underflow"));
+        }
+        let bytes = buf.copy_to_bytes(len as usize);
+        let str =
+            std::str::from_utf8(&bytes).map_err(|_| DecodeError::new("invalid utf-8 denom"))?;
+
+        let mut denom: Denom = std::convert::TryFrom::try_from(String::from(str))
+            .map_err(|_| DecodeError::new("invalid denom"))?;
+
+        // let mut denom = ::proto_types::Denom::try_from(String::from(str))
+        //     .map_err(|_| DecodeError::new("invalid denom"))?;
+        std::mem::swap(value, &mut denom);
+        Ok(())
+    }
+
+    encode_repeated!(::proto_types::Denom);
+
+    pub fn merge_repeated<B>(
+        wire_type: WireType,
+        values: &mut Vec<::proto_types::Denom>,
+        buf: &mut B,
+        ctx: DecodeContext,
+    ) -> Result<(), DecodeError>
+    where
+        B: Buf,
+    {
+        check_wire_type(WireType::LengthDelimited, wire_type)?;
+        //let mut value = ::proto_types::Denom::try_from(String::from("atom")).expect("won't fail");
+
+        let mut value: Denom =
+            std::convert::TryFrom::try_from(String::from("atom")).expect("won't fail");
+
+        merge(wire_type, &mut value, buf, ctx)?;
+        values.push(value);
+        Ok(())
+    }
+
+    #[inline]
+    pub fn encoded_len(tag: u32, value: &::proto_types::Denom) -> usize {
+        key_len(tag) + encoded_len_varint(value.to_string().len() as u64) + value.to_string().len()
+    }
+
+    #[inline]
+    pub fn encoded_len_repeated(tag: u32, values: &[::proto_types::Denom]) -> usize {
+        key_len(tag) * values.len()
+            + values
+                .iter()
+                .map(|value| {
+                    encoded_len_varint(value.to_string().len() as u64) + value.to_string().len()
+                })
+                .sum::<usize>()
+    }
+}
+
 pub mod string {
     use super::*;
 

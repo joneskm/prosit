@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package denom;
+
+import "rust.proto";
+
+message Request {
+  string denom = 1 [(rust.codegen).type = DENOM];
+}
+
+message RequestNoOpts {
+  string denom = 1;
+}

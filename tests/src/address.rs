@@ -1,16 +1,16 @@
 use crate::check_serialize_equivalent;
 
-include!(concat!(env!("OUT_DIR"), "/url.rs"));
+include!(concat!(env!("OUT_DIR"), "/address.rs"));
 
 #[test]
-fn test_url_serializes_equivalent_to_string() {
+fn test_address_serializes_equivalent_to_string() {
     let no_opts = RequestNoOpts {
-        url: String::from("cosmos1syavy2npfyt9tcncdtsdzf7kny9lh777pahuux"),
+        address: String::from("cosmos18kkrrrc0j7hkz0fzhaka7p99dz5v3weyx2kxwd"),
     };
 
     let with_opts = Request {
-        address: prost_types::AccAddress::from_bech32(
-            "cosmos1syavy2npfyt9tcncdtsdzf7kny9lh777pahuux",
+        address: proto_types::AccAddress::from_bech32(
+            "cosmos18kkrrrc0j7hkz0fzhaka7p99dz5v3weyx2kxwd",
         )
         .unwrap(),
     };

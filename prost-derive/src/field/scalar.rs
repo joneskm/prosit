@@ -10,7 +10,7 @@ use uuid::Uuid;
 use crate::field::{bool_attr, set_option, tag_attr, Label};
 use chrono::{DateTime, FixedOffset};
 use cosmwasm_std::Uint256;
-use proto_types::{AccAddress, Decimal256};
+use proto_types::{AccAddress, Decimal256, Denom};
 use url::Url;
 
 /// A scalar protobuf field.
@@ -416,6 +416,7 @@ pub enum Ty {
     Uint256,
     Decimal256,
     AccAddress,
+    Denom,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -466,6 +467,7 @@ impl Ty {
             Meta::Path(ref name) if name.is_ident("dec256") => Ty::Decimal256,
             Meta::Path(ref name) if name.is_ident("datetime") => Ty::Datetime,
             Meta::Path(ref name) if name.is_ident("address") => Ty::AccAddress,
+            Meta::Path(ref name) if name.is_ident("denom") => Ty::Denom,
 
             Meta::NameValue(MetaNameValue {
                 ref path,
@@ -523,6 +525,7 @@ impl Ty {
             "uint256" => Ty::Uint256,
             "dec256" => Ty::Decimal256,
             "address" => Ty::AccAddress,
+            "denom" => Ty::Denom,
             s if s.len() > enumeration_len && &s[..enumeration_len] == "enumeration" => {
                 let s = &s[enumeration_len..].trim();
                 match s.chars().next() {
@@ -566,6 +569,7 @@ impl Ty {
             Ty::Uint256 => "uint256",
             Ty::Decimal256 => "dec256",
             Ty::AccAddress => "address",
+            Ty::Denom => "denom",
         }
     }
 
@@ -580,6 +584,7 @@ impl Ty {
             Ty::Uint256 => quote!(::cosmwasm_std::Uint256),
             Ty::Decimal256 => quote!(::proto_types::Decimal256),
             Ty::AccAddress => quote!(::proto_types::AccAddress),
+            Ty::Denom => quote!(::proto_types::Denom),
             _ => self.rust_ref_type(),
         }
     }
@@ -609,6 +614,7 @@ impl Ty {
             Ty::Uint256 => quote!(&::cosmwasm_std::Uint256),
             Ty::Decimal256 => quote!(&::proto_types::Decimal256),
             Ty::AccAddress => quote!(&::proto_types::AccAddress),
+            Ty::Denom => quote!(&::proto_types::Denom),
         }
     }
 
@@ -675,6 +681,7 @@ pub enum DefaultValue {
     Uint256(Uint256),
     Decimal256(Decimal256),
     AccAddress(AccAddress),
+    Denom(Denom),
 }
 
 impl DefaultValue {
@@ -848,6 +855,10 @@ impl DefaultValue {
                 )
                 .expect("this is a valid address"),
             ),
+            Ty::Denom => DefaultValue::Denom(
+                ::proto_types::Denom::try_from("atom".to_string())
+                    .expect("hard coded value will succeed"),
+            ),
         }
     }
 
@@ -910,6 +921,11 @@ impl ToTokens for DefaultValue {
                 "cosmos1syavy2npfyt9tcncdtsdzf7kny9lh777pahuux".into(),
             )
             .expect("this is a valid address"))
+            .to_tokens(tokens),
+            DefaultValue::Denom(_) => quote!(<::proto_types::Denom as core::convert::TryFrom<
+                String,
+            >>::try_from(String::from("atom"))
+            .expect("won't fail"))
             .to_tokens(tokens),
         }
     }
